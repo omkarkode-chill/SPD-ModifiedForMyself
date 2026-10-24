@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.audio;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
@@ -18,11 +19,19 @@ public class DynamicAudio {
 	private static boolean transitioning = false;
 
 	public static void update() {
+		// Only run dynamic audio during active dungeon gameplay
+		if (!(Game.scene() instanceof GameScene)) {
+			if (inCombat) {
+				reset();
+			}
+			return;
+		}
+
 		if (Dungeon.hero == null || Dungeon.level == null || !Dungeon.hero.isAlive()) {
 			return;
 		}
 
-		// Do not interfere with custom boss music or amulet ascension
+		// Do not interrupt boss music or amulet ascension
 		if (Dungeon.bossLevel() || Statistics.amuletObtained) {
 			return;
 		}
