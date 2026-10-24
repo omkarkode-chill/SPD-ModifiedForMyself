@@ -71,7 +71,15 @@ public class CustomItemRegistry {
 		injected = true;
 
 		try {
-			for (Generator.Category cat : Generator.weaponTiers) {
+			Generator.Category[] tiers = new Generator.Category[]{
+					Generator.Category.WEP_T1,
+					Generator.Category.WEP_T2,
+					Generator.Category.WEP_T3,
+					Generator.Category.WEP_T4,
+					Generator.Category.WEP_T5
+			};
+
+			for (Generator.Category cat : tiers) {
 				if (cat.classes != null) {
 					Class<?>[] newClasses = Arrays.copyOf(cat.classes, cat.classes.length + 1);
 					newClasses[cat.classes.length] = DataDrivenWeapon.class;
