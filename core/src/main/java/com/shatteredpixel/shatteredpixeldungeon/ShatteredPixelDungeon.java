@@ -1,24 +1,3 @@
-/*
- * Pixel Dungeon
- * Copyright (C) 2012-2015 Oleg Dolya
- *
- * Shattered Pixel Dungeon
- * Copyright (C) 2014-2026 Evan Debenham
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- */
-
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.audio.DynamicAudio;
@@ -81,10 +60,26 @@ public class ShatteredPixelDungeon extends Game {
 	@Override
 	protected void update() {
 		super.update();
-		SessionManager.syncFromDungeon();
-		CustomItemRegistry.checkStartingBonus(Dungeon.hero);
-		DynamicAudio.update();
-		ModernStatusOverlay.updateOverlay();
+		try {
+			SessionManager.syncFromDungeon();
+		} catch (Exception e) {
+			Game.reportException(e);
+		}
+		try {
+			CustomItemRegistry.checkStartingBonus(Dungeon.hero);
+		} catch (Exception e) {
+			Game.reportException(e);
+		}
+		try {
+			DynamicAudio.update();
+		} catch (Exception e) {
+			Game.reportException(e);
+		}
+		try {
+			ModernStatusOverlay.updateOverlay();
+		} catch (Exception e) {
+			Game.reportException(e);
+		}
 	}
 
 	@Override
