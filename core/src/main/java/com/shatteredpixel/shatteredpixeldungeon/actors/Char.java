@@ -499,7 +499,11 @@ public abstract class Char extends Actor {
 			}
 			if (visibleFight) {
 				if (effectiveDamage > 0 || !enemy.blockSound(Random.Float(0.96f, 1.05f))) {
-					hitSound(Random.Float(0.87f, 1.15f));
+					if (this == Dungeon.hero && (this.invisible > 0 || effectiveDamage >= 18)) {
+						com.shatteredpixel.shatteredpixeldungeon.audio.DynamicAudio.playSurpriseImpact();
+					} else {
+						hitSound(Random.Float(0.87f, 1.15f));
+					}
 				}
 			}
 
@@ -1063,7 +1067,8 @@ public abstract class Char extends Actor {
 			}
 			hitMissIcon = -1;
 
-			sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg + shielded), icon);
+			int dmgColor = (dmg + shielded >= 18) ? 0xFFCC00 : CharSprite.NEGATIVE;
+			sprite.showStatusWithIcon(dmgColor, Integer.toString(dmg + shielded), icon);
 		}
 
 		if (HP < 0) HP = 0;
