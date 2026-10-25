@@ -22,20 +22,22 @@ public class DataDrivenWeapon extends MeleeWeapon {
 
 	public DataDrivenWeapon(String id) {
 		super();
-		this.definitionId = id;
-		initFromDefinition(CustomItemRegistry.get(id));
+		this.definitionId = (id != null && !id.isEmpty()) ? id : "obsidian_blade";
+		initFromDefinition(CustomItemRegistry.get(this.definitionId));
 	}
 
 	public void initFromDefinition(WeaponDefinition def) {
 		this.definition = def;
 		if (def != null) {
-			this.tier = def.tier;
+			this.tier = Math.max(1, def.tier);
 			this.image = resolveSprite(def.image);
 			this.hitSound = Assets.Sounds.HIT_SLASH;
 			this.hitSoundPitch = 1.0f;
 		} else {
-			this.tier = 1;
+			this.tier = 2;
 			this.image = ItemSpriteSheet.SWORD;
+			this.hitSound = Assets.Sounds.HIT_SLASH;
+			this.hitSoundPitch = 1.0f;
 		}
 	}
 
@@ -62,12 +64,12 @@ public class DataDrivenWeapon extends MeleeWeapon {
 
 	@Override
 	public String name() {
-		return definition != null ? definition.name : "Custom Weapon";
+		return definition != null ? definition.name : "Obsidian Blade";
 	}
 
 	@Override
 	public String desc() {
-		return definition != null ? definition.description : "";
+		return definition != null ? definition.description : "A keen dark blade.";
 	}
 
 	@Override
