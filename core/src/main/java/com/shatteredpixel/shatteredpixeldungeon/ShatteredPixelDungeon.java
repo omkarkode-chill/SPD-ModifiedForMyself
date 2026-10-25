@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.audio.DynamicAudio;
+import com.shatteredpixel.shatteredpixeldungeon.context.SessionManager;
 import com.shatteredpixel.shatteredpixeldungeon.items.custom.CustomItemRegistry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -71,6 +72,7 @@ public class ShatteredPixelDungeon extends Game {
 
 		Sample.INSTANCE.load( Assets.Sounds.all );
 
+		SessionManager.init();
 		CustomItemRegistry.load();
 		CustomItemRegistry.injectIntoGenerator();
 	}
@@ -78,6 +80,7 @@ public class ShatteredPixelDungeon extends Game {
 	@Override
 	protected void update() {
 		super.update();
+		SessionManager.syncFromDungeon();
 		CustomItemRegistry.checkStartingBonus(Dungeon.hero);
 		DynamicAudio.update();
 	}
