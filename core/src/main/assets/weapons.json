@@ -7,17 +7,52 @@
     "minDamage": 8,
     "maxDamage": 22,
     "strengthRequired": 12,
-    "image": "SWORD"
+    "image": "SWORD",
+    "effect": "NONE"
   },
   {
-    "id": "reaper_scythe",
+    "id": "frostfang_dagger",
+    "name": "Frostfang Dagger",
+    "description": "Carved from glacial permafrost, this dagger chills enemies on hit, slowing their movement and attacks.",
+    "tier": 2,
+    "minDamage": 6,
+    "maxDamage": 18,
+    "strengthRequired": 11,
+    "image": "DAGGER",
+    "effect": "FROST"
+  },
+  {
+    "id": "sunfire_longsword",
+    "name": "Sunfire Longsword",
+    "description": "Imbued with radiant solar heat, each strike engulfs foes in intense flickering flame.",
+    "tier": 3,
+    "minDamage": 10,
+    "maxDamage": 28,
+    "strengthRequired": 13,
+    "image": "LONGSWORD",
+    "effect": "FIRE"
+  },
+  {
+    "id": "soul_reaver",
     "name": "Soul Reaver",
-    "description": "An ominous dark war scythe that harvests life essence from dungeon creatures.",
+    "description": "An ominous dark war scythe that harvests life essence from dungeon creatures, restoring the wielder's vitality.",
     "tier": 4,
     "minDamage": 14,
     "maxDamage": 38,
     "strengthRequired": 15,
-    "image": "WAR_SCYTHE"
+    "image": "WAR_SCYTHE",
+    "effect": "VAMPIRIC"
+  },
+  {
+    "id": "stormbreaker",
+    "name": "Stormbreaker Hammer",
+    "description": "A thunderous great hammer infused with crackling lightning that shocks targets with tremendous kinetic force.",
+    "tier": 5,
+    "minDamage": 18,
+    "maxDamage": 50,
+    "strengthRequired": 17,
+    "image": "GREATAXE",
+    "effect": "SHOCK"
   },
   {
     "id": "shadow_dagger",
@@ -27,6 +62,7 @@
     "minDamage": 4,
     "maxDamage": 14,
     "strengthRequired": 10,
-    "image": "DAGGER"
+    "image": "DAGGER",
+    "effect": "NONE"
   }
 ]
