@@ -28,7 +28,10 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Daze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.CounterBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EnhancedRings;
@@ -97,6 +100,7 @@ public enum Talent {
 
 	//Warrior T1
 	HEARTY_MEAL(0), VETERANS_INTUITION(1), PROVOKED_ANGER(2), IRON_WILL(3),
+	BRAWNY_MOMENTUM(2), HEAVY_IMPACT(3), BATTLE_HARDENED(0), BLOOD_FURY(1),
 	//Warrior T2
 	IRON_STOMACH(4), LIQUID_WILLPOWER(5), RUNIC_TRANSFERENCE(6), LETHAL_MOMENTUM(7), IMPROVISED_PROJECTILES(8),
 	//Warrior T3
@@ -114,6 +118,7 @@ public enum Talent {
 
 	//Mage T1
 	EMPOWERING_MEAL(32), SCHOLARS_INTUITION(33), LINGERING_MAGIC(34), BACKUP_BARRIER(35),
+	ARCANE_SIPHON(34), ELEMENTAL_WARD(35), SPELL_WEAVER(32), MYSTIC_MOMENTUM(33),
 	//Mage T2
 	ENERGIZING_MEAL(36), INSCRIBED_POWER(37), WAND_PRESERVATION(38), ARCANE_VISION(39), SHIELD_BATTERY(40),
 	//Mage T3
@@ -131,6 +136,7 @@ public enum Talent {
 
 	//Rogue T1
 	CACHED_RATIONS(64), THIEFS_INTUITION(65), SUCKER_PUNCH(66), PROTECTIVE_SHADOWS(67),
+	CUTPURSE(64), SHADOW_SPRINT(65), VITAL_STRIKE(66), ACROBATIC_STEP(67),
 	//Rogue T2
 	MYSTICAL_MEAL(68), INSCRIBED_STEALTH(69), WIDE_SEARCH(70), SILENT_STEPS(71), ROGUES_FORESIGHT(72),
 	//Rogue T3
@@ -148,6 +154,7 @@ public enum Talent {
 
 	//Huntress T1
 	NATURES_BOUNTY(96), SURVIVALISTS_INTUITION(97), FOLLOWUP_STRIKE(98), NATURES_AID(99),
+	POINT_BLANK_SHOT(98), FORAGERS_BLESSING(96), CAMOUFLAGE(99), QUICK_DRAW(97),
 	//Huntress T2
 	INVIGORATING_MEAL(100), LIQUID_NATURE(101), REJUVENATING_STEPS(102), HEIGHTENED_SENSES(103), DURABLE_PROJECTILES(104),
 	//Huntress T3
@@ -165,6 +172,7 @@ public enum Talent {
 
 	//Duelist T1
 	STRENGTHENING_MEAL(128), ADVENTURERS_INTUITION(129), PATIENT_STRIKE(130), AGGRESSIVE_BARRIER(131),
+	RIPOSTE(130), BLEEDING_EDGE(128), UNYIELDING_STANCE(131), ADRENALINE_SURGE(129),
 	//Duelist T2
 	FOCUSED_MEAL(132), LIQUID_AGILITY(133), WEAPON_RECHARGING(134), LETHAL_HASTE(135), SWIFT_EQUIP(136),
 	//Duelist T3
@@ -182,6 +190,7 @@ public enum Talent {
 
 	//Cleric T1
 	SATIATED_SPELLS(160), HOLY_INTUITION(161), SEARING_LIGHT(162), SHIELD_OF_LIGHT(163),
+	DIVINE_FERVOR(162), SANCTUARY(163), RADIANT_AURA(160), BLESSED_RECOVERY(161),
 	//Cleric T2
 	ENLIGHTENING_MEAL(164), RECALL_INSCRIPTION(165), SUNRAY(166), DIVINE_SENSE(167), BLESS(168),
 	//Cleric T3
@@ -198,7 +207,8 @@ public enum Talent {
 	BEAMING_RAY(183, 4), LIFE_LINK(184, 4), STASIS(185, 4),
 
 	//universal T4
-	HEROIC_ENERGY(26, 4), //See icon() and title() for special logic for this one
+	HEROIC_ENERGY(26, 4),
+	TITANS_ENDURANCE(26, 3), DEADLY_PRECISION(26, 3), //See icon() and title() for special logic for this one
 	//Ratmogrify T4
 	RATSISTANCE(215, 4), RATLOMACY(216, 4), RATFORCEMENTS(217, 4);
 
@@ -207,6 +217,9 @@ public enum Talent {
 		public void tintIcon(Image icon) { icon.hardlight(0.15f, 0.2f, 0.5f); }
 		public float iconFadePercent() { return Math.max(0, visualcooldown() / 50); }
 	};
+		public static class BloodFuryTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
+	public static class SpellWeaverTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
+	public static class AcrobaticStepTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
 	public static class LethalMomentumTracker extends FlavourBuff{};
 	public static class StrikingWaveTracker extends FlavourBuff{};
 	public static class WandPreservationCounter extends CounterBuff{{revivePersists = true;}};
@@ -474,6 +487,35 @@ public enum Talent {
 	}
 
 	public String title(){
+		switch (this) {
+			case BRAWNY_MOMENTUM: return "Brawny Momentum";
+			case HEAVY_IMPACT: return "Heavy Impact";
+			case BATTLE_HARDENED: return "Battle Hardened";
+			case BLOOD_FURY: return "Blood Fury";
+			case ARCANE_SIPHON: return "Arcane Siphon";
+			case ELEMENTAL_WARD: return "Elemental Ward";
+			case SPELL_WEAVER: return "Spell Weaver";
+			case MYSTIC_MOMENTUM: return "Mystic Momentum";
+			case CUTPURSE: return "Cutpurse";
+			case SHADOW_SPRINT: return "Shadow Sprint";
+			case VITAL_STRIKE: return "Vital Strike";
+			case ACROBATIC_STEP: return "Acrobatic Step";
+			case POINT_BLANK_SHOT: return "Point Blank Shot";
+			case FORAGERS_BLESSING: return "Forager's Blessing";
+			case CAMOUFLAGE: return "Camouflage";
+			case QUICK_DRAW: return "Quick Draw";
+			case RIPOSTE: return "Riposte";
+			case BLEEDING_EDGE: return "Bleeding Edge";
+			case UNYIELDING_STANCE: return "Unyielding Stance";
+			case ADRENALINE_SURGE: return "Adrenaline Surge";
+			case DIVINE_FERVOR: return "Divine Fervor";
+			case SANCTUARY: return "Sanctuary";
+			case RADIANT_AURA: return "Radiant Aura";
+			case BLESSED_RECOVERY: return "Blessed Recovery";
+			case TITANS_ENDURANCE: return "Titan's Endurance";
+			case DEADLY_PRECISION: return "Deadly Precision";
+			default: break;
+		}
 		if (this == HEROIC_ENERGY && Ratmogrify.useRatroicEnergy){
 			return Messages.get(this, name() + ".rat_title");
 		}
@@ -485,6 +527,61 @@ public enum Talent {
 	}
 
 	public String desc(boolean metamorphed){
+		switch (this) {
+			case BRAWNY_MOMENTUM:
+				return "While at or above 75% HP, your movement speed is increased.\n\nRank 1: +15% movement speed\nRank 2: +30% movement speed";
+			case HEAVY_IMPACT:
+				return "Your melee attacks pack massive concussive force, with a chance to daze enemies for 2 turns.\n\nRank 1: 25% chance to daze\nRank 2: 50% chance to daze";
+			case BATTLE_HARDENED:
+				return "Your toughened physique shrugs off blows, granting permanent flat physical damage reduction.\n\nRank 1: +1 damage reduction\nRank 2: +2 damage reduction";
+			case BLOOD_FURY:
+				return "Slaying an enemy sends you into a blood frenzy, empowering your next melee strike.\n\nRank 1: +2 bonus damage on next hit\nRank 2: +4 bonus damage on next hit";
+			case ARCANE_SIPHON:
+				return "Striking enemies with your Mage's Staff siphons kinetic force back into arcane power.\n\nRank 1: Restores 0.5 wand charge on hit\nRank 2: Restores 1.0 wand charge on hit";
+			case ELEMENTAL_WARD:
+				return "Whenever you take damage, an instinctive arcane barrier absorbs further harm.\n\nRank 1: Grants 2 shielding on damage taken\nRank 2: Grants 4 shielding on damage taken";
+			case SPELL_WEAVER:
+				return "Zapping a wand weaves residual magical currents into your next physical strike.\n\nRank 1: +25% melee damage after wand zap\nRank 2: +50% melee damage after wand zap";
+			case MYSTIC_MOMENTUM:
+				return "Destroying an enemy with magic or wand discharge grants a surge of swiftness.\n\nRank 1: 3 turns of haste on magic kill\nRank 2: 6 turns of haste on magic kill";
+			case CUTPURSE:
+				return "Your sneak attacks relieve unsuspecting enemies of their loose coins.\n\nRank 1: +5 to 15 bonus gold on sneak kill\nRank 2: +10 to 30 bonus gold on sneak kill";
+			case SHADOW_SPRINT:
+				return "You move like a whisper through darkness, gaining speed while concealed.\n\nRank 1: +20% speed while invisible\nRank 2: +40% speed while invisible";
+			case VITAL_STRIKE:
+				return "Sneak attacks against unaware targets strike vital points, inflicting deep bleeding.\n\nRank 1: Inflicts bleeding for 2 turns\nRank 2: Inflicts bleeding for 4 turns";
+			case ACROBATIC_STEP:
+				return "Dodging an attack sets you up for agile evasion on your next turn.\n\nRank 1: +3 defense skill after dodge\nRank 2: +6 defense skill after dodge";
+			case POINT_BLANK_SHOT:
+				return "Firing your Spirit Bow at point-blank range delivers devastating force.\n\nRank 1: +25% damage to adjacent enemies\nRank 2: +50% damage to adjacent enemies";
+			case FORAGERS_BLESSING:
+				return "Your attunement with nature causes trampled vegetation to yield supplies.\n\nRank 1: 20% chance to drop dew on trample\nRank 2: 40% chance to drop dew on trample";
+			case CAMOUFLAGE:
+				return "Attacking enemies while concealed in tall grass hardens your defenses with barkskin.\n\nRank 1: Grants 2 barkskin armor\nRank 2: Grants 4 barkskin armor";
+			case QUICK_DRAW:
+				return "Nimble hands allow you to throw missiles and swap equipment with blinding speed.\n\nRank 1: 25% faster thrown weapon actions\nRank 2: 50% faster thrown weapon actions";
+			case RIPOSTE:
+				return "You exploit openings in enemy attacks, immediately returning fire when dodging melee strikes.\n\nRank 1: 50% chance to counter-attack on dodge\nRank 2: 100% chance to counter-attack on dodge";
+			case BLEEDING_EDGE:
+				return "Your precise cuts leave deep lacerations that bleed out over time.\n\nRank 1: 35% chance to inflict bleed on hit\nRank 2: 70% chance to inflict bleed on hit";
+			case UNYIELDING_STANCE:
+				return "Your solid martial stance resists disorientation and bolsters guard.\n\nRank 1: +1 defense skill\nRank 2: +2 defense skill";
+			case ADRENALINE_SURGE:
+				return "Defeating an opponent triggers a surge of adrenaline, spurring you to action.\n\nRank 1: 2 turns of haste on kill\nRank 2: 4 turns of haste on kill";
+			case DIVINE_FERVOR:
+				return "Your holy fervor burns brightly against the unholy abominations of the dungeon.\n\nRank 1: +25% damage against undead & demons\nRank 2: +50% damage against undead & demons";
+			case SANCTUARY:
+				return "When struck by enemy attacks, protective prayers shield your spirit.\n\nRank 1: Grants 2 holy barrier on hit\nRank 2: Grants 4 holy barrier on hit";
+			case RADIANT_AURA:
+				return "A gentle halo of light surrounds you, extending your awareness into the dark.\n\nRank 1: +1 tile search distance\nRank 2: +2 tiles search distance";
+			case BLESSED_RECOVERY:
+				return "Divine providence accelerates your body's natural healing.\n\nRank 1: Chance to regenerate extra HP\nRank 2: Higher chance to regenerate extra HP";
+			case TITANS_ENDURANCE:
+				return "Your life force expands to colossal proportions, permanently raising your maximum health.\n\nRank 1: +25 Max HP\nRank 2: +50 Max HP\nRank 3: +75 Max HP";
+			case DEADLY_PRECISION:
+				return "You locate vital flaws in enemy defenses, magnifying your critical strike chance.\n\nRank 1: 20% chance for 1.5x critical hit\nRank 2: 40% chance for 1.5x critical hit\nRank 3: 60% chance for 1.5x critical hit";
+			default: break;
+		}
 		if (metamorphed){
 			String metaDesc = Messages.get(this, name() + ".meta_desc");
 			if (!metaDesc.equals(Messages.NO_TEXT_FOUND)){
@@ -922,6 +1019,62 @@ public enum Talent {
 			}
 		}
 
+				if (hero.hasTalent(Talent.BLOOD_FURY) && hero.buff(BloodFuryTracker.class) != null){
+			dmg += 2 * hero.pointsInTalent(Talent.BLOOD_FURY);
+			hero.buff(BloodFuryTracker.class).detach();
+		}
+
+		if (hero.hasTalent(Talent.SPELL_WEAVER) && hero.buff(SpellWeaverTracker.class) != null
+				&& !(hero.belongings.attackingWeapon() instanceof MissileWeapon)){
+			dmg = Math.round(dmg * (1.0f + 0.25f * hero.pointsInTalent(Talent.SPELL_WEAVER)));
+			hero.buff(SpellWeaverTracker.class).detach();
+		}
+
+		if (hero.hasTalent(Talent.POINT_BLANK_SHOT) && hero.belongings.attackingWeapon() instanceof SpiritBow.SpiritArrow){
+			if (Dungeon.level.adjacent(hero.pos, enemy.pos)){
+				dmg = Math.round(dmg * (1.0f + 0.25f * hero.pointsInTalent(Talent.POINT_BLANK_SHOT)));
+			}
+		}
+
+		if (hero.hasTalent(Talent.DIVINE_FERVOR)){
+			if (enemy.properties().contains(Char.Property.UNDEAD) || enemy.properties().contains(Char.Property.DEMONIC)){
+				dmg = Math.round(dmg * (1.0f + 0.25f * hero.pointsInTalent(Talent.DIVINE_FERVOR)));
+			}
+		}
+
+		if (hero.hasTalent(Talent.DEADLY_PRECISION)){
+			if (Random.Int(100) < 20 * hero.pointsInTalent(Talent.DEADLY_PRECISION)){
+				dmg = Math.round(dmg * 1.5f);
+			}
+		}
+
+		if (hero.hasTalent(Talent.HEAVY_IMPACT) && !(hero.belongings.attackingWeapon() instanceof MissileWeapon)){
+			if (Random.Int(100) < 25 * hero.pointsInTalent(Talent.HEAVY_IMPACT)){
+				Buff.affect(enemy, Daze.class, 2f);
+			}
+		}
+
+		if (hero.hasTalent(Talent.ARCANE_SIPHON) && !(hero.belongings.attackingWeapon() instanceof MissileWeapon)){
+			MagesStaff staff = hero.belongings.getItem(MagesStaff.class);
+			if (staff != null){
+				staff.gainCharge(0.5f * hero.pointsInTalent(Talent.ARCANE_SIPHON));
+			}
+		}
+
+		if (hero.hasTalent(Talent.VITAL_STRIKE) && enemy instanceof Mob && ((Mob) enemy).surprisedBy(hero)){
+			Buff.affect(enemy, Bleeding.class).set(hero.pointsInTalent(Talent.VITAL_STRIKE) * 2);
+		}
+
+		if (hero.hasTalent(Talent.BLEEDING_EDGE) && !(hero.belongings.attackingWeapon() instanceof MissileWeapon)){
+			if (Random.Int(100) < 35 * hero.pointsInTalent(Talent.BLEEDING_EDGE)){
+				Buff.affect(enemy, Bleeding.class).set(hero.pointsInTalent(Talent.BLEEDING_EDGE));
+			}
+		}
+
+		if (hero.hasTalent(Talent.CAMOUFLAGE) && Dungeon.level.map[hero.pos] == Terrain.HIGH_GRASS){
+			Barkskin.conditionallyAppend(hero, 2 * hero.pointsInTalent(Talent.CAMOUFLAGE), 1);
+		}
+
 		return dmg;
 	}
 
@@ -977,22 +1130,22 @@ public enum Talent {
 		//tier 1
 		switch (cls){
 			case WARRIOR: default:
-				Collections.addAll(tierTalents, HEARTY_MEAL, VETERANS_INTUITION, PROVOKED_ANGER, IRON_WILL);
+				Collections.addAll(tierTalents, HEARTY_MEAL, VETERANS_INTUITION, PROVOKED_ANGER, IRON_WILL, BRAWNY_MOMENTUM, HEAVY_IMPACT, BATTLE_HARDENED, BLOOD_FURY);
 				break;
 			case MAGE:
-				Collections.addAll(tierTalents, EMPOWERING_MEAL, SCHOLARS_INTUITION, LINGERING_MAGIC, BACKUP_BARRIER);
+				Collections.addAll(tierTalents, EMPOWERING_MEAL, SCHOLARS_INTUITION, LINGERING_MAGIC, BACKUP_BARRIER, ARCANE_SIPHON, ELEMENTAL_WARD, SPELL_WEAVER, MYSTIC_MOMENTUM);
 				break;
 			case ROGUE:
-				Collections.addAll(tierTalents, CACHED_RATIONS, THIEFS_INTUITION, SUCKER_PUNCH, PROTECTIVE_SHADOWS);
+				Collections.addAll(tierTalents, CACHED_RATIONS, THIEFS_INTUITION, SUCKER_PUNCH, PROTECTIVE_SHADOWS, CUTPURSE, SHADOW_SPRINT, VITAL_STRIKE, ACROBATIC_STEP);
 				break;
 			case HUNTRESS:
-				Collections.addAll(tierTalents, NATURES_BOUNTY, SURVIVALISTS_INTUITION, FOLLOWUP_STRIKE, NATURES_AID);
+				Collections.addAll(tierTalents, NATURES_BOUNTY, SURVIVALISTS_INTUITION, FOLLOWUP_STRIKE, NATURES_AID, POINT_BLANK_SHOT, FORAGERS_BLESSING, CAMOUFLAGE, QUICK_DRAW);
 				break;
 			case DUELIST:
-				Collections.addAll(tierTalents, STRENGTHENING_MEAL, ADVENTURERS_INTUITION, PATIENT_STRIKE, AGGRESSIVE_BARRIER);
+				Collections.addAll(tierTalents, STRENGTHENING_MEAL, ADVENTURERS_INTUITION, PATIENT_STRIKE, AGGRESSIVE_BARRIER, RIPOSTE, BLEEDING_EDGE, UNYIELDING_STANCE, ADRENALINE_SURGE);
 				break;
 			case CLERIC:
-				Collections.addAll(tierTalents, SATIATED_SPELLS, HOLY_INTUITION, SEARING_LIGHT, SHIELD_OF_LIGHT);
+				Collections.addAll(tierTalents, SATIATED_SPELLS, HOLY_INTUITION, SEARING_LIGHT, SHIELD_OF_LIGHT, DIVINE_FERVOR, SANCTUARY, RADIANT_AURA, BLESSED_RECOVERY);
 				break;
 		}
 		for (Talent talent : tierTalents){
@@ -1035,22 +1188,22 @@ public enum Talent {
 		//tier 3
 		switch (cls){
 			case WARRIOR: default:
-				Collections.addAll(tierTalents, HOLD_FAST, STRONGMAN);
+				Collections.addAll(tierTalents, HOLD_FAST, STRONGMAN, TITANS_ENDURANCE, DEADLY_PRECISION);
 				break;
 			case MAGE:
-				Collections.addAll(tierTalents, DESPERATE_POWER, ALLY_WARP);
+				Collections.addAll(tierTalents, DESPERATE_POWER, ALLY_WARP, TITANS_ENDURANCE, DEADLY_PRECISION);
 				break;
 			case ROGUE:
-				Collections.addAll(tierTalents, ENHANCED_RINGS, LIGHT_CLOAK);
+				Collections.addAll(tierTalents, ENHANCED_RINGS, LIGHT_CLOAK, TITANS_ENDURANCE, DEADLY_PRECISION);
 				break;
 			case HUNTRESS:
-				Collections.addAll(tierTalents, POINT_BLANK, SEER_SHOT);
+				Collections.addAll(tierTalents, POINT_BLANK, SEER_SHOT, TITANS_ENDURANCE, DEADLY_PRECISION);
 				break;
 			case DUELIST:
-				Collections.addAll(tierTalents, PRECISE_ASSAULT, DEADLY_FOLLOWUP);
+				Collections.addAll(tierTalents, PRECISE_ASSAULT, DEADLY_FOLLOWUP, TITANS_ENDURANCE, DEADLY_PRECISION);
 				break;
 			case CLERIC:
-				Collections.addAll(tierTalents, CLEANSE, LIGHT_READING);
+				Collections.addAll(tierTalents, CLEANSE, LIGHT_READING, TITANS_ENDURANCE, DEADLY_PRECISION);
 				break;
 		}
 		for (Talent talent : tierTalents){
@@ -1220,3 +1373,5 @@ public enum Talent {
 	}
 
 }
+
+
