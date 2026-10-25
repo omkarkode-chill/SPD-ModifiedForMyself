@@ -1,0 +1,32 @@
+[
+  {
+    "id": "obsidian_blade",
+    "name": "Obsidian Blade",
+    "description": "A razor-sharp blade forged from deep volcanic obsidian glass. Exceptionally lethal with high scaling.",
+    "tier": 2,
+    "minDamage": 8,
+    "maxDamage": 22,
+    "strengthRequired": 12,
+    "image": "SWORD"
+  },
+  {
+    "id": "reaper_scythe",
+    "name": "Soul Reaver",
+    "description": "An ominous dark war scythe that harvests life essence from dungeon creatures.",
+    "tier": 4,
+    "minDamage": 14,
+    "maxDamage": 38,
+    "strengthRequired": 15,
+    "image": "WAR_SCYTHE"
+  },
+  {
+    "id": "shadow_dagger",
+    "name": "Shadow Dagger",
+    "description": "A featherlight stealth blade favored by dungeon assassins. Quick, silent, and deadly.",
+    "tier": 1,
+    "minDamage": 4,
+    "maxDamage": 14,
+    "strengthRequired": 10,
+    "image": "DAGGER"
+  }
+]
