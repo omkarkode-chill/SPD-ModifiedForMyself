@@ -8,6 +8,8 @@ public class AnchorLayout {
 	public static void position(Component target, float containerX, float containerY,
 	                             float containerWidth, float containerHeight,
 	                             Anchor anchor, float marginX, float marginY) {
+		if (target == null) return;
+
 		float targetX = containerX;
 		float targetY = containerY;
 
@@ -50,11 +52,13 @@ public class AnchorLayout {
 				break;
 		}
 
-		target.setPos(targetX, targetY);
+		// Direct coordinates to avoid triggering layout() recursively
+		target.x = targetX;
+		target.y = targetY;
 	}
 
 	public static void positionToCamera(Component target, Camera camera, Anchor anchor, float marginX, float marginY) {
-		if (camera == null) return;
+		if (camera == null || target == null) return;
 		position(target, 0, 0, camera.width, camera.height, anchor, marginX, marginY);
 	}
 }
