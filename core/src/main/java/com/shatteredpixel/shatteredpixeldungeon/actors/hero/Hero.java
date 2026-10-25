@@ -46,6 +46,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GreaterHaste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HeroDisguise;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HoldFast;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
@@ -262,6 +263,9 @@ public class Hero extends Char {
 		int curHT = HT;
 		
 		HT = STARTING_HT + 5*(lvl-1) + HTBoost;
+		if (hasTalent(Talent.TITANS_ENDURANCE)){
+			HT += 25 * pointsInTalent(Talent.TITANS_ENDURANCE);
+		}
 		float multiplier = RingOfMight.HTMultiplier(this);
 		HT = Math.round(multiplier * HT);
 		
@@ -397,9 +401,9 @@ public class Hero extends Char {
 			|| (tier == 4 && armorAbility == null)) {
 			return 0;
 		} else if (lvl >= Talent.tierLevelThresholds[tier+1]){
-			return Talent.tierLevelThresholds[tier+1] - Talent.tierLevelThresholds[tier] - talentPointsSpent(tier) + bonusTalentPoints(tier);
+			return (Talent.tierLevelThresholds[tier+1] - Talent.tierLevelThresholds[tier]) * 3 - talentPointsSpent(tier) + bonusTalentPoints(tier);
 		} else {
-			return 1 + lvl - Talent.tierLevelThresholds[tier] - talentPointsSpent(tier) + bonusTalentPoints(tier);
+			return (1 + lvl - Talent.tierLevelThresholds[tier]) * 3 - talentPointsSpent(tier) + bonusTalentPoints(tier);
 		}
 	}
 
@@ -568,6 +572,14 @@ public class Hero extends Char {
 	@Override
 	public int defenseSkill( Char enemy ) {
 
+		int talentBonus = 0;
+		if (hasTalent(Talent.UNYIELDING_STANCE)) {
+			talentBonus += pointsInTalent(Talent.UNYIELDING_STANCE);
+		}
+		if (hasTalent(Talent.ACROBATIC_STEP) && buff(Talent.AcrobaticStepTracker.class) != null) {
+			talentBonus += 3 * pointsInTalent(Talent.ACROBATIC_STEP);
+		}
+
 		if (buff(Combo.ParryTracker.class) != null){
 			if (canAttack(enemy) && !isCharmedBy(enemy)){
 				Buff.affect(this, Combo.RiposteTracker.class).enemy = enemy;
@@ -662,6 +674,9 @@ public class Hero extends Char {
 		if (buff(HoldFast.class) != null){
 			dr += buff(HoldFast.class).armorBonus();
 		}
+		if (hasTalent(Talent.BATTLE_HARDENED)) {
+			dr += pointsInTalent(Talent.BATTLE_HARDENED);
+		}
 		
 		return dr;
 	}
@@ -733,6 +748,13 @@ public class Hero extends Char {
 		NaturesPower.naturesPowerTracker natStrength = buff(NaturesPower.naturesPowerTracker.class);
 		if (natStrength != null){
 			speed *= (2f + 0.25f*pointsInTalent(Talent.GROWING_POWER));
+		}
+
+		if (hasTalent(Talent.BRAWNY_MOMENTUM) && HP >= HT * 0.75f) {
+			speed *= (1.0f + 0.15f * pointsInTalent(Talent.BRAWNY_MOMENTUM));
+		}
+		if (hasTalent(Talent.SHADOW_SPRINT) && invisible > 0) {
+			speed *= (1.0f + 0.20f * pointsInTalent(Talent.SHADOW_SPRINT));
 		}
 
 		speed = AscensionChallenge.modifyHeroSpeed(speed);
@@ -839,6 +861,11 @@ public class Hero extends Char {
 		
 		//calls to dungeon.observe will also update hero's local FOV.
 		fieldOfView = Dungeon.level.heroFOV;
+		if (hasTalent(Talent.BLESSED_RECOVERY) && HP < HT) {
+			if (Random.Float() < 0.05f * pointsInTalent(Talent.BLESSED_RECOVERY)) {
+				HP = Math.min(HT, HP + 1);
+			}
+		}
 
 		if (buff(Endure.EndureTracker.class) != null){
 			buff(Endure.EndureTracker.class).endEnduring();
@@ -1580,6 +1607,22 @@ public class Hero extends Char {
 		default:
 		}
 		
+				if (enemy != null && (!enemy.isAlive() || enemy.HP <= 0)) {
+			if (hasTalent(Talent.CUTPURSE)) {
+				int extraGold = Random.IntRange(5, 15) * pointsInTalent(Talent.CUTPURSE);
+				Dungeon.gold += extraGold;
+			}
+			if (hasTalent(Talent.BLOOD_FURY)) {
+				Buff.affect(this, Talent.BloodFuryTracker.class, 10f);
+			}
+			if (hasTalent(Talent.MYSTIC_MOMENTUM)) {
+				Buff.affect(this, Haste.class, 3f * pointsInTalent(Talent.MYSTIC_MOMENTUM));
+			}
+			if (hasTalent(Talent.ADRENALINE_SURGE)) {
+				Buff.affect(this, Haste.class, 2f * pointsInTalent(Talent.ADRENALINE_SURGE));
+			}
+		}
+
 		return damage;
 	}
 	
@@ -1609,6 +1652,24 @@ public class Hero extends Char {
 			damage = rockArmor.absorb(damage);
 		}
 		
+				if (damage > 0) {
+			if (hasTalent(Talent.ELEMENTAL_WARD)) {
+				Buff.affect(this, Barrier.class).setShield(2 * pointsInTalent(Talent.ELEMENTAL_WARD));
+			}
+			if (hasTalent(Talent.SANCTUARY)) {
+				Buff.affect(this, Barrier.class).setShield(2 * pointsInTalent(Talent.SANCTUARY));
+			}
+		} else if (damage == 0 && enemy != null && enemy.isAlive() && Dungeon.level.adjacent(pos, enemy.pos)) {
+			if (hasTalent(Talent.RIPOSTE)) {
+				if (Random.Int(100) < 50 * pointsInTalent(Talent.RIPOSTE)) {
+					attack(enemy);
+				}
+			}
+			if (hasTalent(Talent.ACROBATIC_STEP)) {
+				Buff.affect(this, Talent.AcrobaticStepTracker.class, 5f);
+			}
+		}
+
 		return super.defenseProc( enemy, damage );
 	}
 
@@ -2342,6 +2403,9 @@ public class Hero extends Char {
 					|| Dungeon.level.map[pos] == Terrain.FURROWED_GRASS){
 				if (step == pos && wasHighGrass) {
 					Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.Float( 0.96f, 1.05f ) );
+					if (hasTalent(Talent.FORAGERS_BLESSING) && Random.Int(100) < 20 * pointsInTalent(Talent.FORAGERS_BLESSING)) {
+						Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop(), pos).sprite.drop(pos);
+					}
 				} else {
 					Sample.INSTANCE.play( Assets.Sounds.GRASS, 1, Random.Float( 0.96f, 1.05f ) );
 				}
@@ -2497,6 +2561,7 @@ public class Hero extends Char {
 		boolean circular = pointsInTalent(Talent.WIDE_SEARCH) == 1;
 		int distance = heroClass == HeroClass.ROGUE ? 2 : 1;
 		if (hasTalent(Talent.WIDE_SEARCH)) distance++;
+		if (hasTalent(Talent.RADIANT_AURA)) distance += pointsInTalent(Talent.RADIANT_AURA);
 		
 		boolean foresight = buff(Foresight.class) != null;
 		boolean foresightScan = foresight && !Dungeon.level.mapped[pos];
@@ -2683,3 +2748,5 @@ public class Hero extends Char {
 		public void onDeath();
 	}
 }
+
+
