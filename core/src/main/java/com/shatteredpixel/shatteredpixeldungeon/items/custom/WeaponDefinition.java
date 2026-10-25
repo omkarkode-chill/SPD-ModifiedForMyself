@@ -9,4 +9,5 @@ public class WeaponDefinition {
 	public int maxDamage = 5;
 	public int strengthRequired = 10;
 	public String image = "SWORD";
+	public String effect = "NONE";
 }
