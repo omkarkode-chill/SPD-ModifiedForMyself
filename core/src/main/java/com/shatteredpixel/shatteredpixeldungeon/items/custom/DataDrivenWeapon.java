@@ -7,7 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
+import com.shatteredpixel.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -47,7 +47,7 @@ public class DataDrivenWeapon extends MeleeWeapon {
 		}
 	}
 
-	private static int resolveHitSound(String spriteName) {
+	private static String resolveHitSound(String spriteName) {
 		if (spriteName == null) return Assets.Sounds.HIT_SLASH;
 		switch (spriteName.toUpperCase()) {
 			case "MACE":
