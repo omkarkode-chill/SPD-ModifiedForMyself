@@ -20,6 +20,7 @@ public class FlexContainer extends Component {
 	private Align alignment = Align.START;
 	private float gap = 2f;
 	private float padding = 2f;
+	private boolean inLayout = false;
 
 	private final ArrayList<Component> items = new ArrayList<>();
 
@@ -77,42 +78,47 @@ public class FlexContainer extends Component {
 
 	@Override
 	protected void layout() {
-		if (items.isEmpty()) {
+		if (inLayout || items.isEmpty()) {
 			return;
 		}
 
-		float curX = this.x + padding;
-		float curY = this.y + padding;
-		float maxCross = 0f;
+		inLayout = true;
+		try {
+			float curX = this.x + padding;
+			float curY = this.y + padding;
+			float maxCross = 0f;
 
-		if (direction == Direction.COLUMN) {
-			for (Component item : items) {
-				float itemX = curX;
-				if (alignment == Align.CENTER && this.width > 0) {
-					itemX = this.x + (this.width - item.width()) / 2;
-				} else if (alignment == Align.END && this.width > 0) {
-					itemX = this.x + this.width - item.width() - padding;
+			if (direction == Direction.COLUMN) {
+				for (Component item : items) {
+					float itemX = curX;
+					if (alignment == Align.CENTER && this.width > 0) {
+						itemX = this.x + (this.width - item.width()) / 2;
+					} else if (alignment == Align.END && this.width > 0) {
+						itemX = this.x + this.width - item.width() - padding;
+					}
+					item.setPos(itemX, curY);
+					curY += item.height() + gap;
+					maxCross = Math.max(maxCross, item.width());
 				}
-				item.setPos(itemX, curY);
-				curY += item.height() + gap;
-				maxCross = Math.max(maxCross, item.width());
-			}
-			this.width = maxCross + padding * 2;
-			this.height = (curY - gap) - this.y + padding;
-		} else {
-			for (Component item : items) {
-				float itemY = curY;
-				if (alignment == Align.CENTER && this.height > 0) {
-					itemY = this.y + (this.height - item.height()) / 2;
-				} else if (alignment == Align.END && this.height > 0) {
-					itemY = this.y + this.height - item.height() - padding;
+				this.width = maxCross + padding * 2;
+				this.height = Math.max(0, (curY - gap) - this.y + padding);
+			} else {
+				for (Component item : items) {
+					float itemY = curY;
+					if (alignment == Align.CENTER && this.height > 0) {
+						itemY = this.y + (this.height - item.height()) / 2;
+					} else if (alignment == Align.END && this.height > 0) {
+						itemY = this.y + this.height - item.height() - padding;
+					}
+					item.setPos(curX, itemY);
+					curX += item.width() + gap;
+					maxCross = Math.max(maxCross, item.height());
 				}
-				item.setPos(curX, itemY);
-				curX += item.width() + gap;
-				maxCross = Math.max(maxCross, item.height());
+				this.width = Math.max(0, (curX - gap) - this.x + padding);
+				this.height = maxCross + padding * 2;
 			}
-			this.width = (curX - gap) - this.x + padding;
-			this.height = maxCross + padding * 2;
+		} finally {
+			inLayout = false;
 		}
 	}
 }
