@@ -52,9 +52,9 @@ public class AnchorLayout {
 				break;
 		}
 
-		// Direct coordinates to avoid triggering layout() recursively
-		target.x = targetX;
-		target.y = targetY;
+		if (target.left() != targetX || target.top() != targetY) {
+			target.setPos(targetX, targetY);
+		}
 	}
 
 	public static void positionToCamera(Component target, Camera camera, Anchor anchor, float marginX, float marginY) {
