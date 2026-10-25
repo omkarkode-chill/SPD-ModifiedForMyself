@@ -8,6 +8,7 @@ import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
+import com.watabou.utils.Random;
 
 public class DynamicAudio {
 
@@ -17,6 +18,9 @@ public class DynamicAudio {
 
 	private static float heartbeatTimer = 0f;
 	private static boolean transitioning = false;
+
+	private static float ambientTimer = 0f;
+	private static float nextAmbientDelay = 12f;
 
 	public static void update() {
 		// Only run dynamic audio during active dungeon gameplay
@@ -70,6 +74,40 @@ public class DynamicAudio {
 		} else {
 			heartbeatTimer = 0f;
 		}
+
+		// 3. Environmental Atmosphere SFX (periodic subtle cues when peacefully exploring)
+		if (!danger && !inCombat) {
+			ambientTimer += Game.elapsed;
+			if (ambientTimer >= nextAmbientDelay) {
+				ambientTimer = 0f;
+				nextAmbientDelay = Random.Float(14f, 24f);
+				playAtmosphericCue(Dungeon.depth);
+			}
+		} else {
+			ambientTimer = 0f;
+		}
+	}
+
+	private static void playAtmosphericCue(int depth) {
+		try {
+			if (depth >= 1 && depth <= 4) {
+				Sample.INSTANCE.play(Assets.Sounds.WATER, 0.22f, Random.Float(0.85f, 1.15f));
+			} else if (depth >= 6 && depth <= 9) {
+				Sample.INSTANCE.play(Assets.Sounds.UNLOCK, 0.18f, Random.Float(0.70f, 0.90f));
+			} else if (depth >= 11 && depth <= 14) {
+				Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.22f, Random.Float(0.90f, 1.10f));
+			} else if (depth >= 16 && depth <= 19) {
+				Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.20f, Random.Float(0.95f, 1.05f));
+			} else if (depth >= 21 && depth <= 24) {
+				Sample.INSTANCE.play(Assets.Sounds.CURSED, 0.22f, Random.Float(0.75f, 0.95f));
+			}
+		} catch (Exception e) {}
+	}
+
+	public static void playSurpriseImpact() {
+		try {
+			Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG, 0.85f, Random.Float(0.95f, 1.05f));
+		} catch (Exception e) {}
 	}
 
 	private static void playTensionMusic() {
@@ -118,6 +156,7 @@ public class DynamicAudio {
 		inCombat = false;
 		calmTimer = 0f;
 		heartbeatTimer = 0f;
+		ambientTimer = 0f;
 		transitioning = false;
 	}
 }
