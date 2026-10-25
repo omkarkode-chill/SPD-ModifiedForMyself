@@ -255,7 +255,7 @@ public class TalentsPane extends ScrollPane {
 				stars.clear();
 			}
 
-			int totStars = Talent.tierLevelThresholds[tier+1] - Talent.tierLevelThresholds[tier] + Dungeon.hero.bonusTalentPoints(tier);
+			int totStars = (Talent.tierLevelThresholds[tier+1] - Talent.tierLevelThresholds[tier]) * 3 + Dungeon.hero.bonusTalentPoints(tier);
 			int openStars = Dungeon.hero.talentPointsAvailable(tier);
 			int usedStars = Dungeon.hero.talentPointsSpent(tier);
 			for (int i = 0; i < totStars; i++){
@@ -280,26 +280,23 @@ public class TalentsPane extends ScrollPane {
 		protected void layout() {
 			super.layout();
 
-			int regStars = Talent.tierLevelThresholds[tier+1] - Talent.tierLevelThresholds[tier];
+			title.setPos(x + 4, y);
 
-			float titleWidth = title.width();
-			titleWidth += 2 + Math.min(stars.size(), regStars)*6;
-			title.setPos(x + (width - titleWidth)/2f, y);
-
-			float left = title.right() + 2;
-
-			float starTop = title.top();
-			if (regStars < stars.size()) starTop -= 2;
+			float starLeft = title.right() + 4;
+			float curStarX = starLeft;
+			float curStarY = title.top();
+			int col = 0;
 
 			for (Image star : stars){
-				star.x = left;
-				star.y = starTop;
+				star.x = curStarX;
+				star.y = curStarY;
 				PixelScene.align(star);
-				left += 6;
-				regStars--;
-				if (regStars == 0){
-					starTop += 6;
-					left = title.right() + 2;
+				curStarX += 6;
+				col++;
+				if (col >= 6){
+					col = 0;
+					curStarX = starLeft;
+					curStarY += 6;
 				}
 			}
 
@@ -307,17 +304,34 @@ public class TalentsPane extends ScrollPane {
 				random.setRect(width - 16, y-2, 16, 14);
 			}
 
-			float gap = (width - buttons.size()*TalentButton.WIDTH)/(buttons.size()+1);
-			left = x + gap;
-			for (TalentButton btn : buttons){
-				btn.setPos(left, title.bottom() + 4);
-				PixelScene.align(btn);
-				left += btn.width() + gap;
+			float contentTop = Math.max(title.bottom(), curStarY + 8);
+
+			int numButtons = buttons.size();
+			int cols = (numButtons <= 5) ? numButtons : (numButtons <= 8 ? 4 : 5);
+			int rows = (numButtons + cols - 1) / cols;
+			float colGap = (width - cols * TalentButton.WIDTH) / (cols + 1);
+
+			float curY = contentTop + 4;
+			for (int r = 0; r < rows; r++) {
+				float curX = x + colGap;
+				for (int c = 0; c < cols; c++) {
+					int idx = r * cols + c;
+					if (idx < numButtons) {
+						TalentButton btn = buttons.get(idx);
+						btn.setPos(curX, curY);
+						PixelScene.align(btn);
+						curX += btn.width() + colGap;
+					}
+				}
+				curY += TalentButton.HEIGHT + 4;
 			}
 
-			height = buttons.get(0).bottom() - y;
-
+			if (numButtons > 0) {
+				height = buttons.get(numButtons - 1).bottom() - y;
+			}
 		}
 
 	}
 }
+
+
