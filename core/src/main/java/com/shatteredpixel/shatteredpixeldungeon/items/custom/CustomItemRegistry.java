@@ -26,7 +26,7 @@ public class CustomItemRegistry {
 		definitions.clear();
 		idList.clear();
 
-		// Ensure default fallback definition always exists
+		// Default fallback
 		WeaponDefinition fallback = new WeaponDefinition();
 		fallback.id = "obsidian_blade";
 		fallback.name = "Obsidian Blade";
@@ -36,6 +36,7 @@ public class CustomItemRegistry {
 		fallback.maxDamage = 22;
 		fallback.strengthRequired = 12;
 		fallback.image = "SWORD";
+		fallback.effect = "NONE";
 		definitions.put(fallback.id, fallback);
 		idList.add(fallback.id);
 
@@ -57,6 +58,7 @@ public class CustomItemRegistry {
 					def.maxDamage = entry.has("maxDamage") ? entry.getInt("maxDamage") : 5;
 					def.strengthRequired = entry.has("strengthRequired") ? entry.getInt("strengthRequired") : 10;
 					def.image = entry.has("image") ? entry.getString("image") : "SWORD";
+					def.effect = entry.has("effect") ? entry.getString("effect") : "NONE";
 
 					definitions.put(def.id, def);
 					if (!idList.contains(def.id)) {
@@ -85,6 +87,7 @@ public class CustomItemRegistry {
 		def.maxDamage = 22;
 		def.strengthRequired = 12;
 		def.image = "SWORD";
+		def.effect = "NONE";
 		return def;
 	}
 
