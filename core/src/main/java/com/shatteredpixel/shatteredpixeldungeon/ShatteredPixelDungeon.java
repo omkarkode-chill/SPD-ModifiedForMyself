@@ -7,7 +7,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.layout.ModernStatusOverlay;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
@@ -75,11 +74,7 @@ public class ShatteredPixelDungeon extends Game {
 		} catch (Exception e) {
 			Game.reportException(e);
 		}
-		try {
-			ModernStatusOverlay.updateOverlay();
-		} catch (Exception e) {
-			Game.reportException(e);
-		}
+
 	}
 
 	@Override
@@ -154,3 +149,4 @@ public class ShatteredPixelDungeon extends Game {
 		platform.updateSystemUI();
 	}
 }
+
