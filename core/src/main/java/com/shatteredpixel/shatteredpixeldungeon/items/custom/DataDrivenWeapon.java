@@ -2,11 +2,17 @@ package com.shatteredpixel.shatteredpixeldungeon.items.custom;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 
 public class DataDrivenWeapon extends MeleeWeapon {
@@ -31,13 +37,27 @@ public class DataDrivenWeapon extends MeleeWeapon {
 		if (def != null) {
 			this.tier = Math.max(1, def.tier);
 			this.image = resolveSprite(def.image);
-			this.hitSound = Assets.Sounds.HIT_SLASH;
+			this.hitSound = resolveHitSound(def.image);
 			this.hitSoundPitch = 1.0f;
 		} else {
 			this.tier = 2;
 			this.image = ItemSpriteSheet.SWORD;
 			this.hitSound = Assets.Sounds.HIT_SLASH;
 			this.hitSoundPitch = 1.0f;
+		}
+	}
+
+	private static int resolveHitSound(String spriteName) {
+		if (spriteName == null) return Assets.Sounds.HIT_SLASH;
+		switch (spriteName.toUpperCase()) {
+			case "MACE":
+			case "GREATAXE":
+				return Assets.Sounds.HIT_CRUSH;
+			case "SPEAR":
+			case "DAGGER":
+				return Assets.Sounds.HIT_STAB;
+			default:
+				return Assets.Sounds.HIT_SLASH;
 		}
 	}
 
@@ -96,6 +116,47 @@ public class DataDrivenWeapon extends MeleeWeapon {
 			return Math.max(1, req);
 		}
 		return super.STRReq(lvl);
+	}
+
+	@Override
+	public int proc(Char attacker, Char defender, int damage) {
+		damage = super.proc(attacker, defender, damage);
+		if (defender != null && defender.isAlive() && definition != null && definition.effect != null) {
+			try {
+				switch (definition.effect.toUpperCase()) {
+					case "FROST":
+						Buff.affect(defender, Chill.class, 3f);
+						if (defender.sprite != null) {
+							Splash.at(defender.sprite.center(), 0xFFB2D6FF, 4);
+						}
+						break;
+					case "FIRE":
+						Buff.affect(defender, Burning.class).reignite(defender);
+						if (defender.sprite != null) {
+							Splash.at(defender.sprite.center(), 0xFFFF6600, 4);
+						}
+						break;
+					case "VAMPIRIC":
+						if (attacker != null && attacker.isAlive() && damage > 0) {
+							int heal = Math.max(1, damage / 5);
+							attacker.HP = Math.min(attacker.HT, attacker.HP + heal);
+							if (attacker.sprite != null) {
+								attacker.sprite.emitter().burst(Speck.factory(Speck.HEALING), 3);
+							}
+						}
+						break;
+					case "SHOCK":
+						Sample.INSTANCE.play(Assets.Sounds.LIGHTNING, 0.6f);
+						if (defender.sprite != null) {
+							Splash.at(defender.sprite.center(), 0xFFFFFF88, 5);
+						}
+						break;
+				}
+			} catch (Exception e) {
+				// Safety fail-silent
+			}
+		}
+		return damage;
 	}
 
 	@Override
