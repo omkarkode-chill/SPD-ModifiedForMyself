@@ -58,6 +58,18 @@ public class Invisibility extends FlavourBuff {
 		}
 	}
 	
+	private boolean smokeExtended = false;
+
+	@Override
+	public boolean act() {
+		if (!smokeExtended && target instanceof Hero && ((Hero) target).hasTalent(Talent.SMOKE_TRAIL)){
+			smokeExtended = true;
+			spend( 1f + 2f*((Hero) target).pointsInTalent(Talent.SMOKE_TRAIL) );
+			return true;
+		}
+		return super.act();
+	}
+
 	@Override
 	public void detach() {
 		if (target.invisible > 0)
