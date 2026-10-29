@@ -267,6 +267,7 @@ public class Ring extends KindofMisc {
 				n++;
 			}
 		}
+		n += com.shatteredpixel.shatteredpixeldungeon.items.Generator.lootBonus();
 		level(n);
 		
 		//30% chance to be cursed
