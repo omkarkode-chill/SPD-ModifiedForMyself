@@ -769,6 +769,15 @@ public class Generator {
 		}
 	}
 	
+	//extra upgrade levels given to every dropped ring, wand, weapon, armor and missile weapon.
+	//change these two numbers to tune loot power (e.g. 8-18 means roughly +8 to +20 items)
+	public static final int LOOT_BONUS_MIN = 8;
+	public static final int LOOT_BONUS_MAX = 18;
+
+	public static int lootBonus(){
+		return Random.IntRange(LOOT_BONUS_MIN, LOOT_BONUS_MAX);
+	}
+
 	public static Item random( Class<? extends Item> cl ) {
 		return Reflection.newInstance(cl).random();
 	}
