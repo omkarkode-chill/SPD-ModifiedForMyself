@@ -583,6 +583,7 @@ public abstract class Wand extends Item {
 				n++;
 			}
 		}
+		n += com.shatteredpixel.shatteredpixeldungeon.items.Generator.lootBonus();
 		level(n);
 		curCharges += n;
 		
