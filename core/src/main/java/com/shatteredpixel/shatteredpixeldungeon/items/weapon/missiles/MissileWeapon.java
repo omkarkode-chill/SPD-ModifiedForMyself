@@ -373,6 +373,7 @@ abstract public class MissileWeapon extends Weapon {
 				n++;
 			}
 		}
+		n += com.shatteredpixel.shatteredpixeldungeon.items.Generator.lootBonus();
 		level(n);
 
 		//we use a separate RNG here so that variance due to things like parchment scrap
