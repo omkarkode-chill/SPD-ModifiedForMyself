@@ -518,6 +518,14 @@ public class Hero extends Char {
 		
 		float accuracy = 1;
 		accuracy *= RingOfAccuracy.accuracyMultiplier( this );
+
+		if (buff(Talent.DaggerDanceTracker.class) != null){
+			accuracy *= pointsInTalent(Talent.DAGGER_DANCE) == 2 ? Float.POSITIVE_INFINITY : 1.75f;
+		}
+		if (hasTalent(Talent.HUNTERS_MARK) && wep instanceof MissileWeapon
+				&& target != null && target.buff(Talent.HuntersMarkUsed.class) == null){
+			accuracy *= Float.POSITIVE_INFINITY;
+		}
 		
 		//precise assault and liquid agility
 		if (!(wep instanceof MissileWeapon)) {
@@ -579,6 +587,16 @@ public class Hero extends Char {
 		if (hasTalent(Talent.ACROBATIC_STEP) && buff(Talent.AcrobaticStepTracker.class) != null) {
 			talentBonus += 3 * pointsInTalent(Talent.ACROBATIC_STEP);
 		}
+		if (hasTalent(Talent.FOOTWORK)) {
+			int visibleEnemies = 0;
+			for (Mob m : Dungeon.level.mobs.toArray(new Mob[0])) {
+				if (m.alignment == Alignment.ENEMY && m.isAlive() && fieldOfView != null
+						&& fieldOfView.length == Dungeon.level.length() && fieldOfView[m.pos]) {
+					visibleEnemies++;
+				}
+			}
+			if (visibleEnemies == 1) talentBonus += 3 * pointsInTalent(Talent.FOOTWORK);
+		}
 
 		if (buff(Combo.ParryTracker.class) != null){
 			if (canAttack(enemy) && !isCharmedBy(enemy)){
@@ -591,7 +609,7 @@ public class Hero extends Char {
 			return INFINITE_EVASION;
 		}
 		
-		float evasion = defenseSkill;
+		float evasion = defenseSkill + talentBonus;
 		
 		evasion *= RingOfEvasion.evasionMultiplier( this );
 
@@ -753,6 +771,11 @@ public class Hero extends Char {
 		if (hasTalent(Talent.BRAWNY_MOMENTUM) && HP >= HT * 0.75f) {
 			speed *= (1.0f + 0.15f * pointsInTalent(Talent.BRAWNY_MOMENTUM));
 		}
+		if (hasTalent(Talent.TRAILBLAZER) && Dungeon.level != null
+				&& (Dungeon.level.map[pos] == Terrain.GRASS || Dungeon.level.map[pos] == Terrain.HIGH_GRASS
+				|| Dungeon.level.map[pos] == Terrain.FURROWED_GRASS)) {
+			speed *= (1.0f + 0.25f * pointsInTalent(Talent.TRAILBLAZER));
+		}
 		if (hasTalent(Talent.SHADOW_SPRINT) && invisible > 0) {
 			speed *= (1.0f + 0.20f * pointsInTalent(Talent.SHADOW_SPRINT));
 		}
@@ -810,6 +833,11 @@ public class Hero extends Char {
 
 		float delay = 1f;
 
+		Talent.RampageTempoTracker rampage = buff(Talent.RampageTempoTracker.class);
+		if (rampage != null && rampage.stacks > 0){
+			delay /= 1f + rampage.stacks * 0.15f * pointsInTalent(Talent.RAMPAGE_TEMPO);
+		}
+
 		if (!RingOfForce.fightingUnarmed(this)) {
 			
 			return delay * belongings.attackingWeapon().delayFactor( this );
@@ -864,6 +892,15 @@ public class Hero extends Char {
 		if (hasTalent(Talent.BLESSED_RECOVERY) && HP < HT) {
 			if (Random.Float() < 0.05f * pointsInTalent(Talent.BLESSED_RECOVERY)) {
 				HP = Math.min(HT, HP + 1);
+			}
+		}
+
+		if (hasTalent(Talent.TRAP_SENSE)) {
+			int senseRadius = 4 * pointsInTalent(Talent.TRAP_SENSE);
+			for (Trap t : Dungeon.level.traps.valueList()) {
+				if (Dungeon.level.map[t.pos] == Terrain.SECRET_TRAP && Dungeon.level.distance(pos, t.pos) <= senseRadius) {
+					Dungeon.level.discover(t.pos);
+				}
 			}
 		}
 
@@ -1621,6 +1658,10 @@ public class Hero extends Char {
 			if (hasTalent(Talent.ADRENALINE_SURGE)) {
 				Buff.affect(this, Haste.class, 2f * pointsInTalent(Talent.ADRENALINE_SURGE));
 			}
+			if (hasTalent(Talent.RAMPAGE_TEMPO)) {
+				Talent.RampageTempoTracker rt = Buff.prolong(this, Talent.RampageTempoTracker.class, 3f);
+				rt.stacks = Math.min(3, rt.stacks + 1);
+			}
 		}
 
 		return damage;
@@ -1667,6 +1708,9 @@ public class Hero extends Char {
 			}
 			if (hasTalent(Talent.ACROBATIC_STEP)) {
 				Buff.affect(this, Talent.AcrobaticStepTracker.class, 5f);
+			}
+			if (hasTalent(Talent.DAGGER_DANCE)) {
+				Buff.affect(this, Talent.DaggerDanceTracker.class, 10f);
 			}
 		}
 
@@ -1732,6 +1776,13 @@ public class Hero extends Char {
 		if (buff(Talent.WarriorFoodImmunity.class) != null){
 			if (pointsInTalent(Talent.IRON_STOMACH) == 1)       damage /= 4f;
 			else if (pointsInTalent(Talent.IRON_STOMACH) == 2)  damage = 0;
+		}
+
+		if (hasTalent(Talent.GRIT) && damage > 0 && !(src instanceof Hunger)
+				&& buff(Talent.GritCooldown.class) == null
+				&& HP + shielding() - damage < HT * 0.25f){
+			damage *= 1f - (0.1f + 0.3f * pointsInTalent(Talent.GRIT));
+			Buff.affect(this, Talent.GritCooldown.class, 50f);
 		}
 
 		dmg = Math.round(damage);
@@ -2405,6 +2456,10 @@ public class Hero extends Char {
 					Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.Float( 0.96f, 1.05f ) );
 					if (hasTalent(Talent.FORAGERS_BLESSING) && Random.Int(100) < 20 * pointsInTalent(Talent.FORAGERS_BLESSING)) {
 						Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop(), pos).sprite.drop(pos);
+					}
+					if (hasTalent(Talent.HERBALIST) && Random.Int(100) < 15 * pointsInTalent(Talent.HERBALIST)) {
+						Dungeon.level.drop(com.shatteredpixel.shatteredpixeldungeon.items.Generator.random(
+								com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.SEED), pos).sprite.drop(pos);
 					}
 				} else {
 					Sample.INSTANCE.play( Assets.Sounds.GRASS, 1, Random.Float( 0.96f, 1.05f ) );

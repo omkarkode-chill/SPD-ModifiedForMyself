@@ -104,6 +104,7 @@ public enum Talent {
 	BRAWNY_MOMENTUM(2), HEAVY_IMPACT(3), BATTLE_HARDENED(0), BLOOD_FURY(1),
 	//Warrior T2
 	IRON_STOMACH(4), LIQUID_WILLPOWER(5), RUNIC_TRANSFERENCE(6), LETHAL_MOMENTUM(7), IMPROVISED_PROJECTILES(8),
+	RAMPAGE_TEMPO(7), BRUTE_THROW(8), GRIT(3), PUMMEL(3), SHATTERING_BLOWS(2),
 	//Warrior T3
 	HOLD_FAST(9, 3), STRONGMAN(10, 3),
 	//Berserker T3
@@ -122,6 +123,7 @@ public enum Talent {
 	ARCANE_SIPHON(34), ELEMENTAL_WARD(35), SPELL_WEAVER(32), MYSTIC_MOMENTUM(33),
 	//Mage T2
 	ENERGIZING_MEAL(36), INSCRIBED_POWER(37), WAND_PRESERVATION(38), ARCANE_VISION(39), SHIELD_BATTERY(40),
+	ARCANE_RECYCLER(38), STAFF_MASTERY(37), SPELL_ECHO(34), OVERCHARGE(40), SCROLL_SURGE(37),
 	//Mage T3
 	DESPERATE_POWER(41, 3), ALLY_WARP(42, 3),
 	//Battlemage T3
@@ -140,6 +142,7 @@ public enum Talent {
 	CUTPURSE(64), SHADOW_SPRINT(65), VITAL_STRIKE(66), ACROBATIC_STEP(67),
 	//Rogue T2
 	MYSTICAL_MEAL(68), INSCRIBED_STEALTH(69), WIDE_SEARCH(70), SILENT_STEPS(71), ROGUES_FORESIGHT(72),
+	AMBUSH_TRAINING(70), DAGGER_DANCE(71), TRAP_SENSE(70), SMOKE_TRAIL(69), QUICK_FINGERS(72),
 	//Rogue T3
 	ENHANCED_RINGS(73, 3), LIGHT_CLOAK(74, 3),
 	//Assassin T3
@@ -158,6 +161,7 @@ public enum Talent {
 	POINT_BLANK_SHOT(98), FORAGERS_BLESSING(96), CAMOUFLAGE(99), QUICK_DRAW(97),
 	//Huntress T2
 	INVIGORATING_MEAL(100), LIQUID_NATURE(101), REJUVENATING_STEPS(102), HEIGHTENED_SENSES(103), DURABLE_PROJECTILES(104),
+	TRAILBLAZER(102), POISON_TIPS(104), BEAST_BOND(101), HERBALIST(100), HUNTERS_MARK(103),
 	//Huntress T3
 	POINT_BLANK(105, 3), SEER_SHOT(106, 3),
 	//Sniper T3
@@ -176,6 +180,7 @@ public enum Talent {
 	RIPOSTE(130), BLEEDING_EDGE(128), UNYIELDING_STANCE(131), ADRENALINE_SURGE(129),
 	//Duelist T2
 	FOCUSED_MEAL(132), LIQUID_AGILITY(133), WEAPON_RECHARGING(134), LETHAL_HASTE(135), SWIFT_EQUIP(136),
+	PARRY_FOCUS(134), DISARMING_STRIKE(135), FOOTWORK(133), FINISHING_BLOW(135), WEAPON_SWAP_HASTE(136),
 	//Duelist T3
 	PRECISE_ASSAULT(137, 3), DEADLY_FOLLOWUP(138, 3),
 	//Champion T3
@@ -194,6 +199,7 @@ public enum Talent {
 	DIVINE_FERVOR(162), SANCTUARY(163), RADIANT_AURA(160), BLESSED_RECOVERY(161),
 	//Cleric T2
 	ENLIGHTENING_MEAL(164), RECALL_INSCRIPTION(165), SUNRAY(166), DIVINE_SENSE(167), BLESS(168),
+	HOLY_WRATH(166), BLESSED_OFFERING(165), RADIANT_BURST(166), SPELL_RESERVOIR(164), BEACON_OF_LIGHT(168),
 	//Cleric T3
 	CLEANSE(169, 3), LIGHT_READING(170, 3),
 	//Priest T3
@@ -221,6 +227,31 @@ public enum Talent {
 		public static class BloodFuryTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
 	public static class SpellWeaverTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
 	public static class AcrobaticStepTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
+	public static class RampageTempoTracker extends FlavourBuff{
+		public int stacks = 0;
+		{ type = Buff.buffType.POSITIVE; }
+		private static final String STACKS = "stacks";
+		@Override public void storeInBundle(Bundle bundle) { super.storeInBundle(bundle); bundle.put(STACKS, stacks); }
+		@Override public void restoreFromBundle(Bundle bundle) { super.restoreFromBundle(bundle); stacks = bundle.getInt(STACKS); }
+	}
+	public static class GritCooldown extends FlavourBuff{}
+	public static class PummelTracker extends Buff{
+		public int target = -1;
+		public int hits = 0;
+		private static final String TARGET = "target";
+		private static final String HITS = "hits";
+		@Override public void storeInBundle(Bundle bundle) { super.storeInBundle(bundle); bundle.put(TARGET, target); bundle.put(HITS, hits); }
+		@Override public void restoreFromBundle(Bundle bundle) { super.restoreFromBundle(bundle); target = bundle.getInt(TARGET); hits = bundle.getInt(HITS); }
+	}
+	public static class ShatteredBlowsCounter extends Buff{
+		public int hits = 0;
+		private static final String HITS = "hits";
+		@Override public void storeInBundle(Bundle bundle) { super.storeInBundle(bundle); bundle.put(HITS, hits); }
+		@Override public void restoreFromBundle(Bundle bundle) { super.restoreFromBundle(bundle); hits = bundle.getInt(HITS); }
+	}
+	public static class ScrollSurgeTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
+	public static class DaggerDanceTracker extends FlavourBuff{{ type = Buff.buffType.POSITIVE; }}
+	public static class HuntersMarkUsed extends Buff{}
 	public static class LethalMomentumTracker extends FlavourBuff{};
 	public static class StrikingWaveTracker extends FlavourBuff{};
 	public static class WandPreservationCounter extends CounterBuff{{revivePersists = true;}};
@@ -515,6 +546,36 @@ public enum Talent {
 			case BLESSED_RECOVERY: return "Blessed Recovery";
 			case TITANS_ENDURANCE: return "Titan's Endurance";
 			case DEADLY_PRECISION: return "Deadly Precision";
+			case RAMPAGE_TEMPO: return "Rampage Tempo";
+			case BRUTE_THROW: return "Brute Throw";
+			case GRIT: return "Grit";
+			case PUMMEL: return "Pummel";
+			case SHATTERING_BLOWS: return "Shattering Blows";
+			case ARCANE_RECYCLER: return "Arcane Recycler";
+			case STAFF_MASTERY: return "Staff Mastery";
+			case SPELL_ECHO: return "Spell Echo";
+			case OVERCHARGE: return "Overcharge";
+			case SCROLL_SURGE: return "Scroll Surge";
+			case AMBUSH_TRAINING: return "Ambush Training";
+			case DAGGER_DANCE: return "Dagger Dance";
+			case TRAP_SENSE: return "Trap Sense";
+			case SMOKE_TRAIL: return "Smoke Trail";
+			case QUICK_FINGERS: return "Quick Fingers";
+			case TRAILBLAZER: return "Trailblazer";
+			case POISON_TIPS: return "Poison Tips";
+			case BEAST_BOND: return "Beast Bond";
+			case HERBALIST: return "Herbalist";
+			case HUNTERS_MARK: return "Hunter's Mark";
+			case PARRY_FOCUS: return "Parry Focus";
+			case DISARMING_STRIKE: return "Disarming Strike";
+			case FOOTWORK: return "Footwork";
+			case FINISHING_BLOW: return "Finishing Blow";
+			case WEAPON_SWAP_HASTE: return "Weapon Swap Haste";
+			case HOLY_WRATH: return "Holy Wrath";
+			case BLESSED_OFFERING: return "Blessed Offering";
+			case RADIANT_BURST: return "Radiant Burst";
+			case SPELL_RESERVOIR: return "Spell Reservoir";
+			case BEACON_OF_LIGHT: return "Beacon of Light";
 			default: break;
 		}
 		if (this == HEROIC_ENERGY && Ratmogrify.useRatroicEnergy){
@@ -581,6 +642,66 @@ public enum Talent {
 				return "Your life force expands to colossal proportions, permanently raising your maximum health.\n\nRank 1: +25 Max HP\nRank 2: +50 Max HP\nRank 3: +75 Max HP";
 			case DEADLY_PRECISION:
 				return "You locate vital flaws in enemy defenses, magnifying your critical strike chance.\n\nRank 1: 20% chance for 1.5x critical hit\nRank 2: 40% chance for 1.5x critical hit\nRank 3: 60% chance for 1.5x critical hit";
+			case RAMPAGE_TEMPO:
+				return "Every kill fuels your tempo, speeding up your attacks. Stacks up to 3 times and lasts 3 turns after the last kill.\n\nRank 1: +15% attack speed per stack\nRank 2: +30% attack speed per stack";
+			case BRUTE_THROW:
+				return "Your raw strength powers your throws. Thrown weapons deal bonus damage based on your excess strength over the weapon's requirement.\n\nRank 1: +50% of excess strength as damage\nRank 2: +100% of excess strength as damage";
+			case GRIT:
+				return "The first hit that would drop you below 25% HP is greatly reduced. Recharges after 50 turns.\n\nRank 1: -40% damage from that hit\nRank 2: -70% damage from that hit";
+			case PUMMEL:
+				return "Every 3rd consecutive melee hit on the same enemy lands with crushing force.\n\nRank 1: +35% damage on the 3rd hit\nRank 2: +60% damage on the 3rd hit";
+			case SHATTERING_BLOWS:
+				return "Each hit on an enemy exposes its weak points, increasing all further damage you deal to it. Maxes out after 5 hits.\n\nRank 1: +2% damage per hit (max +10%)\nRank 2: +4% damage per hit (max +20%)";
+			case ARCANE_RECYCLER:
+				return "Spent wand energy sometimes flows back into the wand.\n\nRank 1: 25% chance a wand zap costs no charge\nRank 2: 50% chance a wand zap costs no charge";
+			case STAFF_MASTERY:
+				return "Your wands and staff recharge faster.\n\nRank 1: +35% wand recharge speed\nRank 2: +70% wand recharge speed";
+			case SPELL_ECHO:
+				return "Your wand magic sometimes echoes, repeating the zap's effect on the target.\n\nRank 1: 30% chance to repeat a wand's effect\nRank 2: 60% chance to repeat a wand's effect";
+			case OVERCHARGE:
+				return "A wand holding its full charges zaps with extra power.\n\nRank 1: +25% effective wand level while at full charges\nRank 2: +50% effective wand level while at full charges";
+			case SCROLL_SURGE:
+				return "Reading a scroll primes your next wand zap within 10 turns, boosting its power and sometimes making it free.\n\nRank 1: +40% effective wand level, 25% chance to cost no charge\nRank 2: +80% effective wand level, 50% chance to cost no charge";
+			case AMBUSH_TRAINING:
+				return "Attacks made while invisible or against unaware enemies deal bonus damage.\n\nRank 1: +30% damage\nRank 2: +60% damage";
+			case DAGGER_DANCE:
+				return "Dodging an attack sets up your next strike.\n\nRank 1: +75% accuracy on your next attack\nRank 2: your next attack cannot miss";
+			case TRAP_SENSE:
+				return "You feel hidden traps before stepping on them, revealing them within a radius.\n\nRank 1: reveals traps within 4 tiles\nRank 2: reveals traps within 8 tiles";
+			case SMOKE_TRAIL:
+				return "Your invisibility lingers, extending its duration.\n\nRank 1: invisibility lasts 3 turns longer\nRank 2: invisibility lasts 5 turns longer";
+			case QUICK_FINGERS:
+				return "Your nimble hands pick up items and swap equipment instantly.\n\nRank 1: picking up items and equipping gear take no time\nRank 2: (same effect, no further upgrade)";
+			case TRAILBLAZER:
+				return "You see farther and move faster through grass.\n\nRank 1: +2 vision range, +25% speed in grass\nRank 2: +3 vision range, +50% speed in grass";
+			case POISON_TIPS:
+				return "Your thrown weapons and arrows are coated with poison.\n\nRank 1: 35% chance to poison for 4 turns\nRank 2: 60% chance to poison for 6 turns";
+			case BEAST_BOND:
+				return "Your allies and summons fight harder at your side.\n\nRank 1: allies deal +30% damage\nRank 2: allies deal +60% damage";
+			case HERBALIST:
+				return "Trampling grass sometimes yields a random seed.\n\nRank 1: 15% chance to drop a seed\nRank 2: 30% chance to drop a seed";
+			case HUNTERS_MARK:
+				return "Your first thrown attack on any enemy never misses and hits harder.\n\nRank 1: +25% damage\nRank 2: +50% damage";
+			case PARRY_FOCUS:
+				return "Your weapon abilities recharge faster.\n\nRank 1: +40% weapon ability charge speed\nRank 2: +80% weapon ability charge speed";
+			case DISARMING_STRIKE:
+				return "Your melee hits can leave enemies dazed, crippling their attacks.\n\nRank 1: 25% chance to daze for 2 turns\nRank 2: 45% chance to daze for 3 turns";
+			case FOOTWORK:
+				return "When only a single enemy is in view, your evasion is increased.\n\nRank 1: +3 evasion\nRank 2: +6 evasion";
+			case FINISHING_BLOW:
+				return "Your attacks deal bonus damage to enemies below 30% HP.\n\nRank 1: +40% damage\nRank 2: +80% damage";
+			case WEAPON_SWAP_HASTE:
+				return "Swapping weapons grants a burst of speed.\n\nRank 1: 3 turns of haste\nRank 2: 5 turns of haste";
+			case HOLY_WRATH:
+				return "Your holy spells deal extra damage.\n\nRank 1: +25% spell damage\nRank 2: +50% spell damage";
+			case BLESSED_OFFERING:
+				return "Reading a scroll recharges your Holy Tome.\n\nRank 1: +0.5 tome charge per scroll\nRank 2: +1 tome charge per scroll";
+			case RADIANT_BURST:
+				return "Casting a holy spell releases a flash of light, blinding adjacent enemies and revealing secrets (traps and hidden doors) within 5 tiles.\n\nRank 1: blinds for 2 turns\nRank 2: blinds for 4 turns";
+			case SPELL_RESERVOIR:
+				return "Your Holy Tome recharges faster.\n\nRank 1: recharge time reduced by 25%\nRank 2: recharge time reduced by 45%";
+			case BEACON_OF_LIGHT:
+				return "Your allies in view fight and dodge better.\n\nRank 1: +10% accuracy and evasion\nRank 2: +20% accuracy and evasion";
 			default: break;
 		}
 		if (metamorphed){
@@ -867,6 +988,13 @@ public enum Talent {
 			Buff.affect(hero, Invisibility.class, factor * (1 + 2*hero.pointsInTalent(INSCRIBED_STEALTH)));
 			Sample.INSTANCE.play( Assets.Sounds.MELD );
 		}
+		if (hero.hasTalent(SCROLL_SURGE)){
+			Buff.prolong(hero, ScrollSurgeTracker.class, 10f);
+		}
+		if (hero.hasTalent(BLESSED_OFFERING)){
+			HolyTome tome = hero.belongings.getItem(HolyTome.class);
+			if (tome != null) tome.directCharge(0.5f * hero.pointsInTalent(BLESSED_OFFERING));
+		}
 		if (hero.hasTalent(RECALL_INSCRIPTION) && Scroll.class.isAssignableFrom(cls) && cls != ScrollOfUpgrade.class){
 			if (hero.heroClass == HeroClass.CLERIC){
 				Buff.prolong(hero, RecallInscription.UsedItemTracker.class, hero.pointsInTalent(RECALL_INSCRIPTION) == 2 ? 300 : 10).item = cls;
@@ -1072,6 +1200,65 @@ public enum Talent {
 			}
 		}
 
+		boolean missileAtk = hero.belongings.attackingWeapon() instanceof MissileWeapon;
+
+		if (hero.hasTalent(BRUTE_THROW) && missileAtk
+				&& !(hero.belongings.attackingWeapon() instanceof SpiritBow.SpiritArrow)){
+			int excess = Math.max(0, hero.STR() - ((Weapon) hero.belongings.attackingWeapon()).STRReq());
+			dmg += Math.round(excess * 0.5f * hero.pointsInTalent(BRUTE_THROW));
+		}
+
+		if (hero.hasTalent(PUMMEL) && !missileAtk){
+			PummelTracker pt = Buff.affect(hero, PummelTracker.class);
+			if (pt.target != enemy.id()){
+				pt.target = enemy.id();
+				pt.hits = 0;
+			}
+			pt.hits++;
+			if (pt.hits >= 3){
+				pt.hits = 0;
+				dmg = Math.round(dmg * (hero.pointsInTalent(PUMMEL) == 2 ? 1.6f : 1.35f));
+			}
+		}
+
+		if (hero.hasTalent(SHATTERING_BLOWS) && enemy.alignment == Char.Alignment.ENEMY){
+			ShatteredBlowsCounter sb = Buff.affect(enemy, ShatteredBlowsCounter.class);
+			dmg = Math.round(dmg * (1f + 0.02f * hero.pointsInTalent(SHATTERING_BLOWS) * Math.min(sb.hits, 5)));
+			sb.hits++;
+		}
+
+		if (hero.hasTalent(AMBUSH_TRAINING)
+				&& (hero.invisible > 0 || (enemy instanceof Mob && ((Mob) enemy).surprisedBy(hero)))){
+			dmg = Math.round(dmg * (1f + 0.3f * hero.pointsInTalent(AMBUSH_TRAINING)));
+		}
+
+		if (hero.buff(DaggerDanceTracker.class) != null){
+			hero.buff(DaggerDanceTracker.class).detach();
+		}
+
+		if (hero.hasTalent(POISON_TIPS) && missileAtk){
+			int ptPts = hero.pointsInTalent(POISON_TIPS);
+			if (Random.Int(100) < (ptPts == 2 ? 60 : 35)){
+				Buff.affect(enemy, com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison.class).set(2 + 2*ptPts);
+			}
+		}
+
+		if (hero.hasTalent(HUNTERS_MARK) && missileAtk && enemy.buff(HuntersMarkUsed.class) == null){
+			dmg = Math.round(dmg * (1f + 0.25f * hero.pointsInTalent(HUNTERS_MARK)));
+			Buff.affect(enemy, HuntersMarkUsed.class);
+		}
+
+		if (hero.hasTalent(DISARMING_STRIKE) && !missileAtk){
+			int dsPts = hero.pointsInTalent(DISARMING_STRIKE);
+			if (Random.Int(100) < (dsPts == 2 ? 45 : 25)){
+				Buff.prolong(enemy, Daze.class, 1f + dsPts);
+			}
+		}
+
+		if (hero.hasTalent(FINISHING_BLOW) && enemy.HP <= enemy.HT * 0.3f){
+			dmg = Math.round(dmg * (1f + 0.4f * hero.pointsInTalent(FINISHING_BLOW)));
+		}
+
 		if (hero.hasTalent(Talent.CAMOUFLAGE) && Dungeon.level.map[hero.pos] == Terrain.HIGH_GRASS){
 			Barkskin.conditionallyAppend(hero, 2 * hero.pointsInTalent(Talent.CAMOUFLAGE), 1);
 		}
@@ -1160,22 +1347,28 @@ public enum Talent {
 		//tier 2
 		switch (cls){
 			case WARRIOR: default:
-				Collections.addAll(tierTalents, IRON_STOMACH, LIQUID_WILLPOWER, RUNIC_TRANSFERENCE, LETHAL_MOMENTUM, IMPROVISED_PROJECTILES);
+				Collections.addAll(tierTalents, IRON_STOMACH, LIQUID_WILLPOWER, RUNIC_TRANSFERENCE, LETHAL_MOMENTUM, IMPROVISED_PROJECTILES,
+					RAMPAGE_TEMPO, BRUTE_THROW, GRIT, PUMMEL, SHATTERING_BLOWS);
 				break;
 			case MAGE:
-				Collections.addAll(tierTalents, ENERGIZING_MEAL, INSCRIBED_POWER, WAND_PRESERVATION, ARCANE_VISION, SHIELD_BATTERY);
+				Collections.addAll(tierTalents, ENERGIZING_MEAL, INSCRIBED_POWER, WAND_PRESERVATION, ARCANE_VISION, SHIELD_BATTERY,
+					ARCANE_RECYCLER, STAFF_MASTERY, SPELL_ECHO, OVERCHARGE, SCROLL_SURGE);
 				break;
 			case ROGUE:
-				Collections.addAll(tierTalents, MYSTICAL_MEAL, INSCRIBED_STEALTH, WIDE_SEARCH, SILENT_STEPS, ROGUES_FORESIGHT);
+				Collections.addAll(tierTalents, MYSTICAL_MEAL, INSCRIBED_STEALTH, WIDE_SEARCH, SILENT_STEPS, ROGUES_FORESIGHT,
+					AMBUSH_TRAINING, DAGGER_DANCE, TRAP_SENSE, SMOKE_TRAIL, QUICK_FINGERS);
 				break;
 			case HUNTRESS:
-				Collections.addAll(tierTalents, INVIGORATING_MEAL, LIQUID_NATURE, REJUVENATING_STEPS, HEIGHTENED_SENSES, DURABLE_PROJECTILES);
+				Collections.addAll(tierTalents, INVIGORATING_MEAL, LIQUID_NATURE, REJUVENATING_STEPS, HEIGHTENED_SENSES, DURABLE_PROJECTILES,
+					TRAILBLAZER, POISON_TIPS, BEAST_BOND, HERBALIST, HUNTERS_MARK);
 				break;
 			case DUELIST:
-				Collections.addAll(tierTalents, FOCUSED_MEAL, LIQUID_AGILITY, WEAPON_RECHARGING, LETHAL_HASTE, SWIFT_EQUIP);
+				Collections.addAll(tierTalents, FOCUSED_MEAL, LIQUID_AGILITY, WEAPON_RECHARGING, LETHAL_HASTE, SWIFT_EQUIP,
+					PARRY_FOCUS, DISARMING_STRIKE, FOOTWORK, FINISHING_BLOW, WEAPON_SWAP_HASTE);
 				break;
 			case CLERIC:
-				Collections.addAll(tierTalents, ENLIGHTENING_MEAL, RECALL_INSCRIPTION, SUNRAY, DIVINE_SENSE, BLESS);
+				Collections.addAll(tierTalents, ENLIGHTENING_MEAL, RECALL_INSCRIPTION, SUNRAY, DIVINE_SENSE, BLESS,
+					HOLY_WRATH, BLESSED_OFFERING, RADIANT_BURST, SPELL_RESERVOIR, BEACON_OF_LIGHT);
 				break;
 		}
 		for (Talent talent : tierTalents){
