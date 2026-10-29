@@ -116,6 +116,9 @@ public abstract class EquipableItem extends Item {
 	}
 
 	protected float timeToEquip( Hero hero ) {
+		if (hero.hasTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.QUICK_FINGERS)){
+			return 0f;
+		}
 		return 1f;
 	}
 

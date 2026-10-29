@@ -702,6 +702,9 @@ public class Item implements Bundlable {
 	}
 
 	public float pickupDelay(){
+		if (Dungeon.hero != null && Dungeon.hero.hasTalent(Talent.QUICK_FINGERS)){
+			return 0f;
+		}
 		return TIME_TO_PICK_UP;
 	}
 	

@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -129,6 +130,9 @@ abstract public class KindOfWeapon extends EquipableItem {
 			hero.belongings.weapon = this;
 			activate( hero );
 			Talent.onItemEquipped(hero, this);
+			if (hero.hasTalent(Talent.WEAPON_SWAP_HASTE)){
+				Buff.prolong(hero, Haste.class, 1f + 2f*hero.pointsInTalent(Talent.WEAPON_SWAP_HASTE));
+			}
 			Badges.validateDuelistUnlock();
 			updateQuickslot();
 
@@ -176,6 +180,9 @@ abstract public class KindOfWeapon extends EquipableItem {
 			hero.belongings.secondWep = this;
 			activate( hero );
 			Talent.onItemEquipped(hero, this);
+			if (hero.hasTalent(Talent.WEAPON_SWAP_HASTE)){
+				Buff.prolong(hero, Haste.class, 1f + 2f*hero.pointsInTalent(Talent.WEAPON_SWAP_HASTE));
+			}
 			Badges.validateDuelistUnlock();
 			updateQuickslot();
 
