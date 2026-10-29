@@ -296,6 +296,10 @@ public class HolyTome extends Artifact {
 					if (!isEquipped(Dungeon.hero)){
 						chargeToGain *= 0.75f*Dungeon.hero.pointsInTalent(Talent.LIGHT_READING)/3f;
 					}
+					int srPts = Dungeon.hero.pointsInTalent(Talent.SPELL_RESERVOIR);
+					if (srPts > 0){
+						chargeToGain /= (srPts == 2 ? 0.55f : 0.75f);
+					}
 					partialCharge += chargeToGain;
 				}
 
