@@ -402,6 +402,16 @@ public abstract class Wand extends Item {
 				lvl += 2;
 			}
 
+			if (charger.target instanceof Hero){
+				Hero ocHero = (Hero) charger.target;
+				if (ocHero.hasTalent(Talent.OVERCHARGE) && curCharges >= maxCharges){
+					lvl += Math.max(1, Math.round(lvl * 0.25f * ocHero.pointsInTalent(Talent.OVERCHARGE)));
+				}
+				if (ocHero.buff(Talent.ScrollSurgeTracker.class) != null){
+					lvl += Math.max(1, Math.round(lvl * 0.4f * ocHero.pointsInTalent(Talent.SCROLL_SURGE)));
+				}
+			}
+
 			if (curCharges == 1 && charger.target instanceof Hero && ((Hero)charger.target).hasTalent(Talent.DESPERATE_POWER)){
 				lvl += ((Hero)charger.target).pointsInTalent(Talent.DESPERATE_POWER);
 			}
@@ -500,6 +510,24 @@ public abstract class Wand extends Item {
 			ScrollEmpower empower = curUser.buff(ScrollEmpower.class);
 			if (empower != null){
 				empower.use();
+			}
+		}
+
+		if (charger != null && charger.target == Dungeon.hero){
+			Hero rcHero = Dungeon.hero;
+			int refund = cursed ? 1 : chargesPerCast();
+			if (rcHero.hasTalent(Talent.ARCANE_RECYCLER)
+					&& Random.Int(100) < 25 * rcHero.pointsInTalent(Talent.ARCANE_RECYCLER)){
+				curCharges = Math.min(maxCharges, curCharges + refund);
+				rcHero.sprite.showStatus(CharSprite.POSITIVE, "recycled!");
+			}
+			Talent.ScrollSurgeTracker surge = rcHero.buff(Talent.ScrollSurgeTracker.class);
+			if (surge != null){
+				if (Random.Int(100) < 25 * rcHero.pointsInTalent(Talent.SCROLL_SURGE)){
+					curCharges = Math.min(maxCharges, curCharges + refund);
+					rcHero.sprite.showStatus(CharSprite.POSITIVE, "free!");
+				}
+				surge.detach();
 			}
 		}
 
@@ -767,6 +795,11 @@ public abstract class Wand extends Item {
 						curWand.fx(shot, new Callback() {
 							public void call() {
 								curWand.onZap(shot);
+								if (curUser.hasTalent(Talent.SPELL_ECHO) && curWand.charger != null
+										&& curWand.charger.target == curUser
+										&& Random.Int(100) < (curUser.pointsInTalent(Talent.SPELL_ECHO) == 2 ? 60 : 30)){
+									curWand.onZap(shot);
+								}
 								if (Random.Float() < WondrousResin.extraCurseEffectChance()){
 									WondrousResin.forcePositive = true;
 									CursedWand.cursedZap(curWand,
@@ -847,8 +880,13 @@ public abstract class Wand extends Item {
 			float turnsToCharge = (float) (BASE_CHARGE_DELAY
 					+ (SCALING_CHARGE_ADDITION * Math.pow(scalingFactor, missingCharges)));
 
+			float staffMastery = 1f;
+			if (target instanceof Hero && ((Hero) target).hasTalent(Talent.STAFF_MASTERY)){
+				staffMastery += 0.35f * ((Hero) target).pointsInTalent(Talent.STAFF_MASTERY);
+			}
+
 			if (Regeneration.regenOn())
-				partialCharge += (1f/turnsToCharge) * RingOfEnergy.wandChargeMultiplier(target);
+				partialCharge += (1f/turnsToCharge) * RingOfEnergy.wandChargeMultiplier(target) * staffMastery;
 
 			for (Recharging bonus : target.buffs(Recharging.class)){
 				if (bonus != null && bonus.remainder() > 0f) {
