@@ -86,6 +86,22 @@ public abstract class ClericSpell {
 		}
 		tome.spendCharge(chargeUse(hero));
 		Talent.onArtifactUsed(hero);
+		if (hero.hasTalent(Talent.RADIANT_BURST)){
+			int rbPts = hero.pointsInTalent(Talent.RADIANT_BURST);
+			for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob m : Dungeon.level.mobs.toArray(new com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob[0])){
+				if (m.alignment == Char.Alignment.ENEMY && m.isAlive() && Dungeon.level.adjacent(hero.pos, m.pos)){
+					Buff.prolong(m, com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class, 2f * rbPts);
+				}
+			}
+			for (int c = 0; c < Dungeon.level.length(); c++){
+				if ((com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.flags[Dungeon.level.map[c]]
+						& com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.SECRET) != 0
+						&& Dungeon.level.distance(hero.pos, c) <= 5){
+					Dungeon.level.discover(c);
+				}
+			}
+			Dungeon.observe();
+		}
 		if (hero.subClass == HeroSubClass.PALADIN){
 			if (this != HolyWeapon.INSTANCE && hero.buff(HolyWeapon.HolyWepBuff.class) != null){
 				hero.buff(HolyWeapon.HolyWepBuff.class).extend(10*chargeUse(hero));
