@@ -417,6 +417,11 @@ public abstract class Char extends Actor {
 
 			dmg = dmg*dmgMulti;
 
+			if (alignment == Alignment.ALLY && this != Dungeon.hero
+					&& Dungeon.hero.hasTalent(Talent.BEAST_BOND)){
+				dmg *= 1f + 0.3f * Dungeon.hero.pointsInTalent(Talent.BEAST_BOND);
+			}
+
 			//flat damage bonus is affected by multipliers
 			dmg += dmgBonus;
 
@@ -661,6 +666,10 @@ public abstract class Char extends Actor {
 			// + 3%/5%
 			acuRoll *= 1.01f + 0.02f*Dungeon.hero.pointsInTalent(Talent.BLESS);
 		}
+		if (attacker.alignment == Alignment.ALLY && attacker != Dungeon.hero
+				&& Dungeon.hero.hasTalent(Talent.BEACON_OF_LIGHT) && Dungeon.level.heroFOV[attacker.pos]){
+			acuRoll *= 1f + 0.1f * Dungeon.hero.pointsInTalent(Talent.BEACON_OF_LIGHT);
+		}
 		acuRoll *= accMulti;
 
 		float defRoll = Random.Float( defStat );
@@ -676,6 +685,10 @@ public abstract class Char extends Actor {
 				&& defender.alignment == Alignment.ALLY){
 			// + 3%/5%
 			defRoll *= 1.01f + 0.02f*Dungeon.hero.pointsInTalent(Talent.BLESS);
+		}
+		if (defender.alignment == Alignment.ALLY && defender != Dungeon.hero
+				&& Dungeon.hero.hasTalent(Talent.BEACON_OF_LIGHT) && Dungeon.level.heroFOV[defender.pos]){
+			defRoll *= 1f + 0.1f * Dungeon.hero.pointsInTalent(Talent.BEACON_OF_LIGHT);
 		}
 		defRoll *= FerretTuft.evasionMultiplier();
 
@@ -840,6 +853,11 @@ public abstract class Char extends Actor {
 		if(isInvulnerable(src.getClass())){
 			sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "invulnerable"));
 			return;
+		}
+
+		if (src instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell
+				&& this != Dungeon.hero && Dungeon.hero != null && Dungeon.hero.hasTalent(Talent.HOLY_WRATH)){
+			dmg = Math.round(dmg * (1f + 0.25f * Dungeon.hero.pointsInTalent(Talent.HOLY_WRATH)));
 		}
 
 		if (!(src instanceof LifeLink || src instanceof Hunger) && buff(LifeLink.class) != null){
