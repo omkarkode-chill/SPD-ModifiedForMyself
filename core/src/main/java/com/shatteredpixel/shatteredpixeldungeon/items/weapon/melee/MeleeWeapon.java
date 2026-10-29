@@ -440,7 +440,7 @@ public class MeleeWeapon extends Weapon {
 						chargeToGain *= 0.50f;
 					}
 
-					partialCharge += chargeToGain;
+					partialCharge += chargeToGain * (1f + 0.4f * ((Hero)target).pointsInTalent(Talent.PARRY_FOCUS));
 				}
 
 				int points = ((Hero)target).pointsInTalent(Talent.WEAPON_RECHARGING);
